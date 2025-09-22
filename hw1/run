@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+echo "=== XOR ==="
+python3 train_mlp_xor_demo.py
+echo
+echo "=== Two-bit Adder ==="
+python3 train_mlp_adder_demo.py
