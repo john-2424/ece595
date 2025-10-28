@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# 0) Enter script directory
+cd "$(dirname "$0")"
+
+# 1) Get data if missing and unzip to ./data
+if [ ! -d "data" ]; then
+  mkdir -p data
+fi
+
+if [ ! -f "data/README_h2" ]; then
+  echo "[info] Fetching dataset zip if not present..."
+  if [ ! -f "data/h2-data.zip" ]; then
+    curl -L -o data/h2-data.zip "https://engineering.purdue.edu/ece595cv/h2-data.zip"
+  fi
+  unzip -q -o data/h2-data.zip -d data
+  # cheap sentinel so we don’t re-unzip if the directory already exists
+  echo "ok" > data/README_h2
+fi
+
+# 2) Train (fast)
+python3 train.py
+
+# 3) Test
+python3 test.py

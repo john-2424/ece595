@@ -22,6 +22,7 @@ class cobundle:
     def __ge__(self, x): return ge(self, x)
     def __eq__(self, x): return eq(self, x)
     def __ne__(self, x): return ne(self, x)
+    def __str__(self): return f'{self.prim}, {self.tape}'
 
 class tape:
     def __init__(self, factors, tapes, fanout, cotg):

@@ -8,6 +8,9 @@ def average_loss(params, dataset):
         total += l2_loss(y_hat, y).prim
     return total / max(1, len(dataset))
 
+def inference(x, params):
+    return mlp(x, params)
+
 def accuracy01(params, dataset, threshold=0.5):
     from mlp import mlp
     correct = 0

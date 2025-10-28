@@ -2,7 +2,7 @@
 import time, random
 from datasets import xor_dataset
 from splits import train_test_split
-from evaluate import average_loss
+from evaluate import average_loss, inference
 from utils import build_params_from_theta
 from train_loop import train_gd
 
@@ -20,20 +20,33 @@ def run_one(train, test, layer_shapes, lr, iters, seed=0):
     last_iter = 0; last_loss = None; last_theta = theta0
     for it, L, th in train_gd(theta0, layer_shapes, train, lr, iters, log_every=max(1,iters//5 or 1)):
         last_iter, last_loss, last_theta = it, L, th
-        print(f"iter: {last_iter}; train_loss: {last_loss}")
+        params = build_params_from_theta(last_theta, layer_shapes)
+        test_L = average_loss(params, test)
+        print(f"iter: {last_iter}; train_loss: {last_loss}; test_loss: {test_L}")
+        for x in [(0, 0), (0, 1), (1, 0), (1, 1)]:
+                y = inference(x, params)
+                # print(y)
+                # print(y[0])
+                print(f'X: {x} ==>> Y: {y[0].prim}')    
     dur = time.time() - start
-    params = build_params_from_theta(last_theta, layer_shapes)
-    test_L = average_loss(params, test)
-    return {"iters": last_iter, "train_loss": last_loss, "test_loss": test_L, "secs": dur}
+    # params = build_params_from_theta(last_theta, layer_shapes)
+    # test_L = average_loss(params, test)
+    return {"iters": last_iter, "train_loss": last_loss, "test_loss": test_L, "secs": dur, 'params': params}
 
 def main():
     data = xor_dataset()
     grids = [
-        {"layer_shapes":[(2,2),(1,2)], "lr":0.5, "iters":1200},
-        {"layer_shapes":[(3,2),(1,3)], "lr":1.0, "iters":800},
-        {"layer_shapes":[(4,2),(3,4),(1,3)], "lr":0.3, "iters":400},
+        # {"layer_shapes":[(2,2),(1,2)], "lr":0.1, "iters":1200},
+        {"layer_shapes":[(10,2),(1,10)], "lr":0.1, "iters":800},
+        # {"layer_shapes":[(4,2),(3,4),(1,3)], "lr":0.2, "iters":400},
+        # {"layer_shapes":[(20,2),(30,20),(30,40),(1,30)], "lr":0.2, "iters":400},
+        # {"layer_shapes":[(4,2),(3,4),(3,4),(3,4),(1,3)], "lr":0.3, "iters":400},
     ]
-    splits = [(0.5,0), (0.75,1), (0.9,2)]
+    splits = [
+        # (0.5,0), 
+        # (0.75,1), 
+        (0.9,2)
+        ]
     print("\t\t\t\t[[[[ dataset=XOR ]]]]\n\n")
     for ls in grids:
         for frac, seed in splits:
@@ -41,6 +54,12 @@ def main():
             train, test = train_test_split(data, train_frac=frac, seed=seed)
             r = run_one(train, test, ls["layer_shapes"], ls["lr"], ls["iters"], seed=seed)
             print(f"Outcome: Last Iter Train Loss: {r['train_loss']:.4f}\t Test Loss: {r['test_loss']:.4f}\tTrain Time: {r['secs']:.2f}s")
+            print('Inferencing..')
+            for x in [(0, 0), (0, 1), (1, 0), (1, 1)]:
+                y = inference(x, r["params"])
+                # print(y)
+                # print(y[0])
+                print(f'X: {x} ==>> Y: {y[0].prim}')
             print("\n")
 
 if __name__ == "__main__":

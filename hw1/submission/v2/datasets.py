@@ -1,10 +1,12 @@
 # datasets.py
+import numpy as np
 
 def xor_dataset():
     # inputs are length-2; outputs are length-1
     data = []
-    for a in [0.0, 1.0]:
-        for b in [0.0, 1.0]:
+    rand = np.random.randint(0, 100, 20)
+    for a in rand: # [0.0, 1.0]:
+        for b in rand: # [0.0, 1.0]:
             x = [a, b]
             y = [1.0 if (a != b) else 0.0]
             data.append((x, y))
