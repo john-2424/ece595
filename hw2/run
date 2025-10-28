@@ -18,8 +18,15 @@ if [ ! -f "data/README_h2" ]; then
   echo "ok" > data/README_h2
 fi
 
-# 2) Train (fast)
+# 2) Create venv and install requirements
+python3 -m venv ecesrajulehw2env
+source ecesrajulehw2env/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# 3) Train (fast)
 python3 train.py
 
-# 3) Test
+# 4) Test
 python3 test.py
