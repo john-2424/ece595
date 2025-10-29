@@ -21,10 +21,10 @@ def main():
     test_list  = os.path.join(root, "test.txt")
 
     train_ds = ImageNet4Dataset(root, train_list, train=True)
-    test_ds  = ImageNet4Dataset(root, test_list, train=False)
+    # test_ds  = ImageNet4Dataset(root, test_list, train=False)
 
     train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=2)
-    test_loader  = DataLoader(test_ds, batch_size=32, shuffle=False, num_workers=2)
+    # test_loader  = DataLoader(test_ds, batch_size=32, shuffle=False, num_workers=2)
 
     # 2) Model, loss, optimizer
     model = SmallNet(num_classes=4).to(device)
@@ -53,7 +53,7 @@ def main():
         print(f"[epoch {epoch+1}] loss={running_loss/total:.4f}, acc={100*correct/total:.2f}%")
 
     # 4) Evaluate quickly
-    model.eval()
+    """model.eval()
     correct, total = 0, 0
     with torch.no_grad():
         for imgs, labels in test_loader:
@@ -62,7 +62,7 @@ def main():
             correct += (preds == labels).sum().item()
             total += labels.size(0)
     acc = 100 * correct / total
-    print(f"[test] accuracy={acc:.2f}%")
+    print(f"[test] accuracy={acc:.2f}%")"""
 
     # 5) Save artifacts
     os.makedirs("artifacts", exist_ok=True)
@@ -71,7 +71,7 @@ def main():
         json.dump({
             "epochs": num_epochs,
             "train_time_s": time.time()-t0,
-            "test_accuracy": acc
+            # "test_accuracy": acc
         }, f, indent=2)
 
 if __name__ == "__main__":
