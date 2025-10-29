@@ -32,7 +32,7 @@ class ConvBlock(nn.Module):
         y = self.pool(y)
         return y
 
-class TinyNet(nn.Module):
+class SmallNet(nn.Module):
     """
     Lightweight CNN for 4 classes.
     Input: 3x128x128 (we'll resize in the dataloader)
