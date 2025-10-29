@@ -1,32 +1,53 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 # 0) Enter script directory
 cd "$(dirname "$0")"
 
 # 1) Get data if missing and unzip to ./data
-if [ ! -d "data" ]; then
-  mkdir -p data
-fi
-
+mkdir -p data
 if [ ! -f "data/README_h2" ]; then
   echo "[info] Fetching dataset zip if not present..."
   if [ ! -f "data/h2-data.zip" ]; then
-    curl -L -o data/h2-data.zip "https://engineering.purdue.edu/ece595cv/h2-data.zip"
+    if command -v curl >/dev/null 2>&1; then
+      curl -L -o data/h2-data.zip "https://engineering.purdue.edu/ece595cv/h2-data.zip"
+    else
+      wget -O data/h2-data.zip "https://engineering.purdue.edu/ece595cv/h2-data.zip"
+    fi
   fi
   unzip -q -o data/h2-data.zip -d data
-  # cheap sentinel so we don’t re-unzip if the directory already exists
   echo "ok" > data/README_h2
 fi
 
-# 2) Create venv and install requirements
-python3 -m venv ecesrajulehw2env
+# 2) Create venv and install requirements (CPU-default for portability)
+if [ ! -d "ecesrajulehw2env" ]; then
+  python3 -m venv ecesrajulehw2env
+fi
 source ecesrajulehw2env/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+python -m pip install --upgrade pip
+
+# If you pin your own deps, keep torch OUT of requirements.txt to avoid conflicts.
+if [ -f requirements.txt ]; then
+  python -m pip install --no-cache-dir -r requirements.txt
+fi
+
+# Install PyTorch CPU wheels (portable)
+# Pin to stable pair; adjust if you need different versions.
+TORCH_VER="2.4.1"
+TV_VER="0.19.1"
+python -m pip install --no-cache-dir \
+  torch=="${TORCH_VER}"+cpu torchvision=="${TV_VER}"+cpu \
+  --index-url https://download.pytorch.org/whl/cpu
+
+# Quick verification (fail fast if import breaks)
+python - <<'PY'
+import torch, torchvision
+print(f"[ok] torch {torch.__version__}, cuda={torch.cuda.is_available()}")
+print(f"[ok] torchvision {torchvision.__version__}")
+PY
 
 # 3) Train (fast)
-python3 train.py
+python train.py
 
 # 4) Test
-python3 test.py
+python test.py

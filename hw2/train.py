@@ -1,6 +1,5 @@
 # train.py
 import json, os, time
-import argparse
 
 import torch
 
