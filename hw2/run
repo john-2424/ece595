@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
 # 0) Enter script directory
 cd "$(dirname "$0")"
@@ -19,35 +18,8 @@ if [ ! -f "data/README_h2" ]; then
   echo "ok" > data/README_h2
 fi
 
-# 2) Create venv and install requirements (CPU-default for portability)
-if [ ! -d "ecesrajulehw2env" ]; then
-  python3 -m venv ecesrajulehw2env
-fi
-source ecesrajulehw2env/bin/activate
-python -m pip install --upgrade pip
-
-# If you pin your own deps, keep torch OUT of requirements.txt to avoid conflicts.
-if [ -f requirements.txt ]; then
-  python -m pip install --no-cache-dir -r requirements.txt
-fi
-
-# Install PyTorch CPU wheels (portable)
-# Pin to stable pair; adjust if you need different versions.
-TORCH_VER="2.4.1"
-TV_VER="0.19.1"
-python -m pip install --no-cache-dir \
-  torch=="${TORCH_VER}"+cpu torchvision=="${TV_VER}"+cpu \
-  --index-url https://download.pytorch.org/whl/cpu
-
-# Quick verification (fail fast if import breaks)
-python - <<'PY'
-import torch, torchvision
-print(f"[ok] torch {torch.__version__}, cuda={torch.cuda.is_available()}")
-print(f"[ok] torchvision {torchvision.__version__}")
-PY
-
-# 3) Train (fast)
+# 2) Train (fast)
 python train.py
 
-# 4) Test
+# 3) Test
 python test.py
