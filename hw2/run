@@ -16,7 +16,13 @@ if [ ! -f "data/README_h2" ]; then
 fi
 
 # Train
+echo "Training model.."
 python train.py
 
 # Test
+echo "Testing/Evaluation (based on the trained model).."
 python test.py
+
+# Inference
+echo "Inferencing/Image Classification (based on the trained model).."
+python inference.py
