@@ -79,7 +79,6 @@ def main():
     cols = len(samples)
     plt.figure(figsize=(3.2*cols, 3.6))
     for i, path in enumerate(samples):
-        # Ground truth from filename prefix
         cls_token = os.path.basename(path).split("_")[0]
         gt_idx = CLASS_MAP[cls_token]
         gt_name = CLASS_NAMES[gt_idx]
@@ -96,9 +95,9 @@ def main():
     plt.tight_layout()
     out_path = "artifacts/inference_grid.png"
     plt.savefig(out_path, bbox_inches="tight", dpi=160)
-    print(f"[Inference] Saved {out_path}")
+    print(f"[Info] [Inference] Saved {out_path}")
     try:
-        plt.show()
+        plt.show(block=False)
     except Exception:
         pass
 

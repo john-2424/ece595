@@ -2,6 +2,7 @@
 import os
 import json
 import numpy as np
+import matplotlib.pyplot as plt
 
 import torch
 from torch.utils.data import DataLoader
@@ -9,7 +10,6 @@ from torch.utils.data import DataLoader
 from models.small_net import SmallNet
 from utils.dataset import HW2Dataset
 
-# Class index -> human-readable name (matches HW spec order)
 CLASS_NAMES = {
     0: "Egyptian Cat",
     1: "Banana",
@@ -126,10 +126,8 @@ def main():
             "confusion_matrix": cm.tolist(),
             **m
         }, f, indent=2)
-
-    # Optional: confusion matrix heatmap (matplotlib-only, no seaborn dependency)
+    
     try:
-        import matplotlib.pyplot as plt
         fig, ax = plt.subplots(figsize=(6, 5))
         im = ax.imshow(cm, cmap="Blues")
         ax.set_xticks(range(K)); ax.set_yticks(range(K))
@@ -142,7 +140,10 @@ def main():
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
         fig.tight_layout()
         fig.savefig("artifacts/confusion_matrix.png", dpi=160, bbox_inches="tight")
-        plt.close(fig)
+        try:
+            plt.show(block=False)
+        except Exception:
+            plt.close(fig)
     except Exception as e:
         print(f"[Warn] Could not save confusion_matrix.png ({e}). Skipping heatmap.")
 
