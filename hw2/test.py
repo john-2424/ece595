@@ -137,6 +137,7 @@ def main():
             for j in range(K):
                 ax.text(j, i, cm[i, j], ha="center", va="center", color="black")
         ax.set_xlabel("Predicted"); ax.set_ylabel("True")
+        ax.set_title('Confusion Matrix', fontsize=10)
         fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
         fig.tight_layout()
         fig.savefig("artifacts/confusion_matrix.png", dpi=160, bbox_inches="tight")
