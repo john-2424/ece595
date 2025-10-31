@@ -30,10 +30,11 @@ def main():
     # Model, loss, and optimizer
     model = SmallNet(num_classes=4).to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=1e-4)
 
     # Training loop
-    num_epochs = 20  # Number of epochs - 20
+    if torch.cuda.is_available(): num_epochs = 24  # Number of epochs - 24, if gpu avaialble
+    else: num_epochs = 5 # Number of epochs - 5, if otherwise
     for epoch in range(num_epochs):
         model.train()
         running_loss, correct, total = 0.0, 0, 0
