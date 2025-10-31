@@ -34,7 +34,7 @@ def main():
 
     # Training loop
     if torch.cuda.is_available(): num_epochs = 24  # Number of epochs - 24, if gpu avaialble
-    else: num_epochs = 5 # Number of epochs - 5, if otherwise
+    else: num_epochs = 3 # Number of epochs - 3, if otherwise
     for epoch in range(num_epochs):
         model.train()
         running_loss, correct, total = 0.0, 0, 0
