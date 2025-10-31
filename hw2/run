@@ -1,4 +1,4 @@
-﻿#!/usr/bin bash
+﻿#!/usr/bin/env bash
 
 # Install requirements.txt
 echo "[[[[[[[[[[[[[[[[ Installing requirements.txt ]]]]]]]]]]]]]]]]"
@@ -75,7 +75,7 @@ echo ""
 echo ""
 
 # Model Shapes & Params
-echo "[[[[[[[[[[[[[[[[ Model Shapes & Params (quick trace) ]]]]]]]]]]]]]]]]"
+echo "[[[[[[[[[[[[[[[[ Model Shapes & Params ]]]]]]]]]]]]]]]]"
 python trace.py
 echo ""
 echo ""

@@ -97,6 +97,7 @@ def main():
     plt.savefig(out_path, bbox_inches="tight", dpi=160)
     print(f"[Info] [Inference] Saved {out_path}")
     try:
+        print("[Info] **** Close the Matplotlib figure window to continue! ****")
         plt.show()
     except Exception:
         pass

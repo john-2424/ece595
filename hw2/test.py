@@ -141,6 +141,7 @@ def main():
         fig.tight_layout()
         fig.savefig("artifacts/confusion_matrix.png", dpi=160, bbox_inches="tight")
         try:
+            print("[Info] **** Close the Matplotlib figure window to continue! ****")
             plt.show()
         except Exception:
             plt.close(fig)
