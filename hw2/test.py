@@ -141,7 +141,7 @@ def main():
         fig.tight_layout()
         fig.savefig("artifacts/confusion_matrix.png", dpi=160, bbox_inches="tight")
         try:
-            plt.show(block=False)
+            plt.show()
         except Exception:
             plt.close(fig)
     except Exception as e:
