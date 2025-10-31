@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 
+# Install requirements.txt
+echo "[Info] Installing requirements.txt"
+pip install -r requirements.txt
+
 # Get data if missing and unzip to ./data
 mkdir -p data
 if [ ! -f "data/README_h2" ]; then
   echo "[Info] Fetching dataset zip if not present..."
   if [ ! -f "h2-data.zip" ]; then
+    echo "[Info] Downloading dataset..."
     if command -v curl >/dev/null 2>&1; then
       curl -L -o h2-data.zip "https://engineering.purdue.edu/ece595cv/h2-data.zip"
     else
       wget -O h2-data.zip "https://engineering.purdue.edu/ece595cv/h2-data.zip"
     fi
   fi
+  echo "[Info] Unzipping dataset file..."
   unzip -q -o h2-data.zip -d data
   echo "ok" > data/README_h2
 fi

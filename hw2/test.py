@@ -46,8 +46,8 @@ def metrics_from_confusion(cm: np.ndarray):
     macro_f1        = float(np.mean([c["f1"] for c in per_class]))
 
     TP_sum = float(np.trace(cm))
-    FP_sum = float(cm.sum(axis=0) - np.trace(cm))
-    FN_sum = float(cm.sum(axis=1) - np.trace(cm))
+    FP_sum = float(cm.sum(axis=0).sum() - np.trace(cm))
+    FN_sum = float(cm.sum(axis=1).sum() - np.trace(cm))
 
     micro_precision = TP_sum / (TP_sum + FP_sum) if (TP_sum + FP_sum) else 0.0
     micro_recall    = TP_sum / (TP_sum + FN_sum) if (TP_sum + FN_sum) else 0.0
