@@ -3,7 +3,10 @@ import os
 import random
 
 from PIL import Image
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
+plt.ion()
 
 import torch
 import torch.nn.functional as F
