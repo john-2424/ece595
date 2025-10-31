@@ -24,6 +24,8 @@ if [ ! -f "data/README_h2" ]; then
   echo "[Info] Unzipping dataset file"
   unzip -q -o h2-data.zip -d data
   echo "ok" > data/README_h2
+else
+  echo "[Info] Dataset is present!"
 fi
 echo ""
 echo ""
@@ -67,6 +69,10 @@ cat <<'ARCH'
 │        one residual add in block1 only (in==out).                            │
 └──────────────────────────────────────────────────────────────────────────────┘
 ARCH
+echo ""
+echo ""
+echo ""
+echo ""
 
 # Model Shapes & Params
 echo "[[[[[[[[[[[[[[[[ Model Shapes & Params (quick trace) ]]]]]]]]]]]]]]]]"

@@ -3,10 +3,7 @@ import os
 import random
 
 from PIL import Image
-import matplotlib
-matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-plt.ion()
 
 import torch
 import torch.nn.functional as F
@@ -100,7 +97,7 @@ def main():
     plt.savefig(out_path, bbox_inches="tight", dpi=160)
     print(f"[Info] [Inference] Saved {out_path}")
     try:
-        plt.show(block=False)
+        plt.show()
     except Exception:
         pass
 
