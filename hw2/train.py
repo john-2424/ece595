@@ -33,7 +33,7 @@ def main():
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
     # Training loop
-    num_epochs = 3
+    num_epochs = 8  # Number of epochs - 8
     for epoch in range(num_epochs):
         model.train()
         running_loss, correct, total = 0.0, 0, 0
