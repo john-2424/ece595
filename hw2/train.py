@@ -1,37 +1,38 @@
 # train.py
-import os, json, time
+import os
+import time
+import json
+from tqdm import tqdm
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-from tqdm import tqdm
 
 from models.small_net import SmallNet
-from utils.data_loader import ImageNet4Dataset
+from utils.dataset import HW2Dataset
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"[info] Using device: {device}")
+print(f"[Info] Using device: {device}")
 
 def main():
-    t0 = time.time()
+    t_0 = time.time()
 
-    # 1) Datasets and loaders
+    # Dataset and Data Loader
     root = "data/h2-data"
     train_list = os.path.join(root, "train.txt")
-    test_list  = os.path.join(root, "test.txt")
-
-    train_ds = ImageNet4Dataset(root, train_list, train=True)
-    # test_ds  = ImageNet4Dataset(root, test_list, train=False)
-
+    # test_list  = os.path.join(root, "test.txt")
+    train_ds = HW2Dataset(root, train_list, train=True)
+    # test_ds  = HW2Dataset(root, test_list, train=False)
     train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=2)
     # test_loader  = DataLoader(test_ds, batch_size=32, shuffle=False, num_workers=2)
 
-    # 2) Model, loss, optimizer
+    # Model, loss, and optimizer
     model = SmallNet(num_classes=4).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-    # 3) Training loop (2-3 epochs only)
+    # Training loop
     num_epochs = 3
     for epoch in range(num_epochs):
         model.train()
@@ -50,9 +51,9 @@ def main():
             correct += (preds == labels).sum().item()
             total += labels.size(0)
             pbar.set_postfix(loss=loss.item(), acc=100*correct/total)
-        print(f"[epoch {epoch+1}] loss={running_loss/total:.4f}, acc={100*correct/total:.2f}%")
+        print(f"[Info] [Train] [Epoch {epoch+1}] Loss={running_loss/total:.4f}, Acc={100*correct/total:.2f}%")
 
-    # 4) Evaluate quickly
+    # Evaluate
     """model.eval()
     correct, total = 0, 0
     with torch.no_grad():
@@ -62,15 +63,15 @@ def main():
             correct += (preds == labels).sum().item()
             total += labels.size(0)
     acc = 100 * correct / total
-    print(f"[test] accuracy={acc:.2f}%")"""
+    print(f"[Info] [Test] Acc={acc:.2f}%")"""
 
-    # 5) Save artifacts
+    # Save artifacts
     os.makedirs("artifacts", exist_ok=True)
     torch.save(model.state_dict(), "artifacts/model.pt")
     with open("artifacts/results.json", "w") as f:
         json.dump({
             "epochs": num_epochs,
-            "train_time_s": time.time()-t0,
+            "train_time_s": time.time()-t_0,
             # "test_accuracy": acc
         }, f, indent=2)
 

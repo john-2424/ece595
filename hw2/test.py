@@ -1,20 +1,20 @@
 # test.py
-import os, json
+import os
+import json
+
 import torch
 from torch.utils.data import DataLoader
 
 from models.small_net import SmallNet
-from utils.data_loader import ImageNet4Dataset
+from utils.dataset import HW2Dataset
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"[info] Using device: {device}")
+print(f"[Info] Using device: {device}")
 
 def main():
     root = "data/h2-data"
     test_list = os.path.join(root, "test.txt")
-
-    # dataset + loader (eval-time transforms inside ImageNet4Dataset(train=False))
-    test_ds = ImageNet4Dataset(root, test_list, train=False)
+    test_ds = HW2Dataset(root, test_list, train=False)
     test_loader = DataLoader(test_ds, batch_size=64, shuffle=False, num_workers=2)
 
     # model
@@ -37,7 +37,7 @@ def main():
             total += labels.size(0)
 
     acc = 100.0 * correct / total if total else 0.0
-    print(f"TEST ACCURACY: {acc:.2f}%")
+    print(f"[Info] [Test] Acc: {acc:.2f}%")
 
     # save a tiny report (optional but handy)
     os.makedirs("artifacts", exist_ok=True)

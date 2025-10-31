@@ -1,7 +1,8 @@
 ﻿# models/small_net.py
+from typing import Sequence
+
 import torch
 import torch.nn as nn
-from typing import Sequence
 
 def conv_bn_relu(in_c: int, out_c: int, k: int = 3, s: int = 1, p: int = 1) -> nn.Sequential:
     """A tiny VGG-style unit: Conv -> BN -> ReLU."""
@@ -56,7 +57,6 @@ class SmallNet(nn.Module):
             nn.Linear(chs[-1], num_classes),
         )
 
-        # Kaiming init for convs, sensible init for BN/Linear
         self.apply(self._init_weights)
 
     @staticmethod

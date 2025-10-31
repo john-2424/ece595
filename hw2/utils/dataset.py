@@ -1,18 +1,20 @@
 ﻿# dataset_loader.py
 import os
+
 from PIL import Image
+
 from torch.utils.data import Dataset
 from torchvision import transforms
 
 # Map folder names to numeric labels
 CLASS_MAP = {
-    "n02124075": 0,  # Egyptian cat
-    "n07753592": 1,  # banana
-    "n02504458": 2,  # African elephant
-    "n03792782": 3,  # mountain bike
+    "n02124075": 0,  # Egyptian Cat
+    "n07753592": 1,  # Banana
+    "n02504458": 2,  # African Elephant
+    "n03792782": 3,  # Mountain Bike
 }
 
-class ImageNet4Dataset(Dataset):
+class HW2Dataset(Dataset):
     def __init__(self, root_dir, list_file, train=True):
         """
         root_dir: path to 'h2-data'
@@ -30,15 +32,15 @@ class ImageNet4Dataset(Dataset):
 
         if train:
             self.transform = transforms.Compose([
-                transforms.Resize((144,144)),
-                transforms.RandomResizedCrop(128, scale=(0.8,1.0)),
+                transforms.Resize((144, 144)),
+                transforms.RandomResizedCrop(128, scale=(0.8, 1.0)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean, std)
             ])
         else:
             self.transform = transforms.Compose([
-                transforms.Resize((128,128)),
+                transforms.Resize((128, 128)),
                 transforms.CenterCrop(128),
                 transforms.ToTensor(),
                 transforms.Normalize(mean, std)
@@ -49,7 +51,6 @@ class ImageNet4Dataset(Dataset):
 
     def __getitem__(self, idx):
         fname = self.files[idx]
-        # class id from filename prefix
         cls_token = fname.split("_")[0]
         label = CLASS_MAP.get(cls_token, -1)
         if label == -1:
