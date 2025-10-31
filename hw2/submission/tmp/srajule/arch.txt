@@ -1,0 +1,33 @@
+﻿┌──────────────────────────────────────────────────────────────────────────────┐
+│ SmallNet (VGG-ish, lightweight)                                              │
+│                                                                              │
+│ Input: (B, 3, 128, 128)                                                      │
+│                                                                              │
+│ stem:                                                                        │
+│   └─ Conv(3→32, k3,s1,p1) → BatchNorm → ReLU                                 │
+│                                                                              │
+│ block1:                                                                      │
+│   ├─ Conv(32→32, k3,s1,p1) → BN → ReLU                                       │
+│   ├─ Conv(32→32, k3,s1,p1) → BN → ReLU                                       │
+│   ├─ + Residual (since in==out==32)                                          │
+│   └─ MaxPool(2×2, s2)         → spatial /2                                   │
+│                                                                              │
+│ block2:                                                                      │
+│   ├─ Conv(32→64, k3,s1,p1) → BN → ReLU                                       │
+│   ├─ Conv(64→64, k3,s1,p1) → BN → ReLU                                       │
+│   └─ MaxPool(2×2, s2)         → spatial /4                                   │
+│                                                                              │
+│ block3:                                                                      │
+│   ├─ Conv(64→128, k3,s1,p1) → BN → ReLU                                      │
+│   ├─ Conv(128→128, k3,s1,p1) → BN → ReLU                                     │
+│   └─ MaxPool(2×2, s2)         → spatial /8                                   │
+│                                                                              │
+│ head:                                                                        │
+│   ├─ AdaptiveAvgPool2d(1)  → (B,128,1,1)                                     │
+│   ├─ Flatten               → (B,128)                                         │
+│   ├─ Dropout(p=0.1)                                                          │
+│   └─ Linear(128→4)         → logits for {cat, banana, elephant, bike}        │
+│                                                                              │
+│ Notes: 3×3 stacks (VGG principle), BatchNorm everywhere, tiny dropout,       │
+│        one residual add in block1 only (in==out).                            │
+└──────────────────────────────────────────────────────────────────────────────┘

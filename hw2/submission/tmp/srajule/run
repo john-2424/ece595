@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+# Install requirements.txt
+echo "[[[[[[[[[[[[[[[[ Installing requirements.txt ]]]]]]]]]]]]]]]]"
+pip install -r requirements.txt
+echo ""
+echo ""
+echo ""
+echo ""
+
+# Get data if missing and unzip to ./data
+echo "[[[[[[[[[[[[[[[[ Downloading/Unzipping Dataset.. ]]]]]]]]]]]]]]]]"
+mkdir -p data
+if [ ! -f "data/README_h2" ]; then
+  echo "[Info] Fetching dataset zip if not present"
+  if [ ! -f "h2-data.zip" ]; then
+    echo "[Info] Downloading dataset"
+    if command -v curl >/dev/null 2>&1; then
+      curl -L -o h2-data.zip "https://engineering.purdue.edu/ece595cv/h2-data.zip"
+    else
+      wget -O h2-data.zip "https://engineering.purdue.edu/ece595cv/h2-data.zip"
+    fi
+  fi
+  echo "[Info] Unzipping dataset file"
+  unzip -q -o h2-data.zip -d data
+  echo "ok" > data/README_h2
+else
+  echo "[Info] Dataset is present!"
+fi
+echo ""
+echo ""
+echo ""
+echo ""
+
+# Model Blueprint
+echo "[[[[[[[[[[[[[[[[ Model Blueprint (SmallNet) ]]]]]]]]]]]]]]]]"
+cat arch.txt
+echo ""
+echo ""
+echo ""
+echo ""
+
+# Model Shapes & Params
+echo "[[[[[[[[[[[[[[[[ Model Shapes & Params ]]]]]]]]]]]]]]]]"
+python trace.py
+echo ""
+echo ""
+echo ""
+echo ""
+
+# Train
+echo "[[[[[[[[[[[[[[[[ Training model.. ]]]]]]]]]]]]]]]]"
+python train.py
+echo ""
+echo ""
+echo ""
+echo ""
+
+# Test
+echo "[[[[[[[[[[[[[[[[ Testing/Evaluation (based on the trained model).. ]]]]]]]]]]]]]]]]"
+python test.py
+echo ""
+echo ""
+echo ""
+echo ""
+
+# Inference
+echo "[[[[[[[[[[[[[[[[ Inferencing/Image Classification (based on the trained model).. ]]]]]]]]]]]]]]]]"
+python inference.py
+echo ""
+echo ""
+echo ""
+echo ""
+
+echo "Checkout 'artifacts' folder for results/outcomes and other execution files!!"
