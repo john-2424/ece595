@@ -9,24 +9,24 @@ BATCH_SIZE=128
 echo "Running experiments with data dir: ${DATA_DIR}"
 
 # 1. ResNet-18 baseline
-echo "=== ResNet-18 baseline ==="
-python train_cifar10.py \
-  --model resnet18 \
-  --data-dir "${DATA_DIR}" \
-  --epochs ${EPOCHS} \
-  --batch-size ${BATCH_SIZE}
+# echo "=== ResNet-18 baseline ==="
+# python train_cifar10.py \
+#   --model resnet18 \
+#   --data-dir "${DATA_DIR}" \
+#   --epochs ${EPOCHS} \
+#   --batch-size ${BATCH_SIZE}
 
 # 2. ConvNeXt-Tiny baseline (k7, LN, mlp4, patchify stem)
-echo "=== ConvNeXt-Tiny baseline (k7, ln, mlp4, patchify) ==="
-python train_cifar10.py \
-  --model convnext_tiny \
-  --data-dir "${DATA_DIR}" \
-  --epochs ${EPOCHS} \
-  --batch-size ${BATCH_SIZE} \
-  --kernel-size 7 \
-  --norm-layer ln \
-  --mlp-ratio 4 \
-  --stem-type patchify
+# echo "=== ConvNeXt-Tiny baseline (k7, ln, mlp4, patchify) ==="
+# python train_cifar10.py \
+#   --model convnext_tiny \
+#   --data-dir "${DATA_DIR}" \
+#   --epochs ${EPOCHS} \
+#   --batch-size ${BATCH_SIZE} \
+#   --kernel-size 7 \
+#   --norm-layer ln \
+#   --mlp-ratio 4 \
+#   --stem-type patchify
 
 # 3. Kernel size ablation: k3 vs k7
 echo "=== Kernel ablation: k3, ln, mlp4, patchify ==="
