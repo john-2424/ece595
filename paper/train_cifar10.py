@@ -123,6 +123,11 @@ def main():
     parser.add_argument("--weight-decay", type=float, default=0.05)
     parser.add_argument("--num-workers", type=int, default=4)
     parser.add_argument("--no-amp", action="store_true", help="Disable mixed precision")
+    parser.add_argument("--kernel-size", type=int, default=7)
+    parser.add_argument("--norm-layer", type=str, default="ln", choices=["ln", "bn"])
+    parser.add_argument("--mlp-ratio", type=int, default=4)
+    parser.add_argument("--stem-type", type=str, default="patchify",
+                        choices=["patchify", "resnet"])
     args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -136,15 +141,30 @@ def main():
     if args.model == "resnet18":
         model = resnet18(weights=None, num_classes=10)
     elif args.model == "convnext_tiny":
-        model = convnext_tiny(num_classes=10, in_chans=3)
+        model = convnext_tiny(
+            num_classes=10,
+            in_chans=3,
+            kernel_size=args.kernel_size,
+            mlp_ratio=args.mlp_ratio,
+            norm_layer=args.norm_layer,
+            stem_type=args.stem_type,
+        )
 
     model = model.to(device)
     
     os.makedirs("results", exist_ok=True)
     os.makedirs("checkpoints", exist_ok=True)
 
-    log_path = os.path.join("results", f"{args.model}_cifar10_log.csv")
-    ckpt_path = os.path.join("checkpoints", f"{args.model}_cifar10_best.pth")
+    exp_name = (
+        f"{args.model}"
+        f"_stem{args.stem_type}"
+        f"_k{args.kernel_size}"
+        f"_{args.norm_layer}"
+        f"_mlp{args.mlp_ratio}"
+        "_cifar10"
+    )
+    log_path = os.path.join("results", f"{exp_name}_log.csv")
+    ckpt_path = os.path.join("checkpoints", f"{exp_name}_best.pth")
 
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"Model: {args.model} | Trainable parameters: {num_params/1e6:.2f}M")

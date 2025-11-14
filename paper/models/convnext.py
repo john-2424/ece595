@@ -47,20 +47,37 @@ class DropPath(nn.Module):
 class ConvNeXtBlock(nn.Module):
     """
     ConvNeXt block:
-    - LayerNorm2d
-    - depthwise 7x7 conv
+    - Normalization (LayerNorm2d or BatchNorm2d)
+    - depthwise kxk conv
     - pointwise conv (C -> 4C)
     - GELU
     - pointwise conv (4C -> C)
     - residual + optional DropPath
     """
-    def __init__(self, dim: int, drop_path: float = 0.0,
-                 kernel_size: int = 7, mlp_ratio: int = 4):
+    def __init__(
+        self,
+        dim: int,
+        drop_path: float = 0.0,
+        kernel_size: int = 7,
+        mlp_ratio: int = 4,
+        norm_layer: str = "ln",
+    ):
         super().__init__()
-        self.ln = LayerNorm2d(dim)
+
+        # choose normalization
+        if norm_layer == "ln":
+            self.norm = LayerNorm2d(dim)
+        elif norm_layer == "bn":
+            self.norm = nn.BatchNorm2d(dim)
+        else:
+            raise ValueError(f"Unsupported norm_layer: {norm_layer}")
+
         self.dwconv = nn.Conv2d(
-            dim, dim, kernel_size=kernel_size,
-            padding=kernel_size // 2, groups=dim
+            dim,
+            dim,
+            kernel_size=kernel_size,
+            padding=kernel_size // 2,
+            groups=dim,
         )  # depthwise
         self.pwconv1 = nn.Conv2d(dim, dim * mlp_ratio, kernel_size=1)
         self.act = nn.GELU()
@@ -69,7 +86,7 @@ class ConvNeXtBlock(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         shortcut = x
-        x = self.ln(x)
+        x = self.norm(x)
         x = self.dwconv(x)
         x = self.pwconv1(x)
         x = self.act(x)
@@ -81,19 +98,35 @@ class ConvNeXtBlock(nn.Module):
 class ConvNeXtStage(nn.Module):
     """
     One ConvNeXt stage:
-    - (optional) downsampling (2x2 stride-2 conv) with LN
+    - (optional) downsampling (2x2 stride-2 conv) with norm
     - N ConvNeXt blocks at fixed channel width
     """
-    def __init__(self, in_channels: int, out_channels: int,
-                 depth: int, drop_path_rates: List[float],
-                 downsample: bool = True):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        depth: int,
+        drop_path_rates: List[float],
+        downsample: bool = True,
+        kernel_size: int = 7,
+        mlp_ratio: int = 4,
+        norm_layer: str = "ln",
+    ):
         super().__init__()
         layers = []
         if downsample:
+            # choose normalization for downsampling
+            if norm_layer == "ln":
+                norm = LayerNorm2d(in_channels)
+            elif norm_layer == "bn":
+                norm = nn.BatchNorm2d(in_channels)
+            else:
+                raise ValueError(f"Unsupported norm_layer: {norm_layer}")
+
             layers.append(
                 nn.Sequential(
-                    LayerNorm2d(in_channels),
-                    nn.Conv2d(in_channels, out_channels, kernel_size=2, stride=2)
+                    norm,
+                    nn.Conv2d(in_channels, out_channels, kernel_size=2, stride=2),
                 )
             )
             in_channels = out_channels
@@ -105,7 +138,13 @@ class ConvNeXtStage(nn.Module):
         blocks = []
         for i in range(depth):
             blocks.append(
-                ConvNeXtBlock(out_channels, drop_path=drop_path_rates[i])
+                ConvNeXtBlock(
+                    dim=out_channels,
+                    drop_path=drop_path_rates[i],
+                    kernel_size=kernel_size,
+                    mlp_ratio=mlp_ratio,
+                    norm_layer=norm_layer,
+                )
             )
         self.blocks = nn.Sequential(*blocks)
 
@@ -128,18 +167,50 @@ class ConvNeXt(nn.Module):
         num_classes: int = 10,
         depths: List[int] = [3, 3, 9, 3],
         dims: List[int] = [96, 192, 384, 768],
-        drop_path_rate: float = 0.1
+        drop_path_rate: float = 0.1,
+        kernel_size: int = 7,
+        mlp_ratio: int = 4,
+        norm_layer: str = "ln",
+        stem_type: str = "patchify",
     ):
         super().__init__()
         assert len(depths) == len(dims) == 4
 
         self.num_classes = num_classes
 
-        # Patchify stem: 4x4 conv, stride 4
-        self.stem = nn.Sequential(
-            nn.Conv2d(in_chans, dims[0], kernel_size=4, stride=4),
-            LayerNorm2d(dims[0])
-        )
+        # choose normalization module for stem
+        if norm_layer == "ln":
+            stem_norm = LayerNorm2d(dims[0])
+        elif norm_layer == "bn":
+            stem_norm = nn.BatchNorm2d(dims[0])
+        else:
+            raise ValueError(f"Unsupported norm_layer: {norm_layer}")
+
+        # -----------------------------
+        # Stem variants for ablation:
+        #  - "patchify": 4x4 conv, stride 4 (ConvNeXt style)
+        #  - "resnet":  7x7 conv, stride 2 + maxpool (ResNet style)
+        # -----------------------------
+        if stem_type == "patchify":
+            self.stem = nn.Sequential(
+                nn.Conv2d(in_chans, dims[0], kernel_size=4, stride=4),
+                stem_norm,
+            )
+        elif stem_type == "resnet":
+            self.stem = nn.Sequential(
+                nn.Conv2d(
+                    in_chans,
+                    dims[0],
+                    kernel_size=7,
+                    stride=2,
+                    padding=3,
+                    bias=False,
+                ),
+            stem_norm,
+            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+            )
+        else:
+            raise ValueError(f"Unsupported stem_type: {stem_type}")
 
         # stochastic depth schedule
         total_blocks = sum(depths)
@@ -162,44 +233,40 @@ class ConvNeXt(nn.Module):
                     out_channels=out_dim,
                     depth=depth,
                     drop_path_rates=stage_dp_rates,
-                    downsample=downsample
+                    downsample=downsample,
+                    kernel_size=kernel_size,
+                    mlp_ratio=mlp_ratio,
+                    norm_layer=norm_layer,
                 )
             )
             in_dim = out_dim
 
         self.stages = nn.Sequential(*stages)
         self.global_pool = nn.AdaptiveAvgPool2d(1)
+        # keep LayerNorm in head for simplicity
         self.head_norm = nn.LayerNorm(dims[-1], eps=1e-6)
         self.head = nn.Linear(dims[-1], num_classes)
 
         self.apply(self._init_weights)
 
-    def _init_weights(self, m):
-        if isinstance(m, (nn.Conv2d, nn.Linear)):
-            nn.init.trunc_normal_(m.weight, std=.02)
-            if m.bias is not None:
-                nn.init.zeros_(m.bias)
 
-    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.stem(x)
-        x = self.stages(x)
-        x = self.global_pool(x)  # (B, C, 1, 1)
-        x = x.flatten(1)         # (B, C)
-        x = self.head_norm(x)
-        return x
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.forward_features(x)
-        x = self.head(x)
-        return x
-
-
-def convnext_tiny(num_classes: int = 10, in_chans: int = 3) -> ConvNeXt:
-    """Factory function for ConvNeXt-Tiny-like model."""
+def convnext_tiny(
+    num_classes: int = 10,
+    in_chans: int = 3,
+    kernel_size: int = 7,
+    mlp_ratio: int = 4,
+    norm_layer: str = "ln",
+    stem_type: str = "patchify",
+) -> ConvNeXt:
+    """Factory function for ConvNeXt-Tiny-like model with ablation knobs."""
     return ConvNeXt(
         in_chans=in_chans,
         num_classes=num_classes,
         depths=[3, 3, 9, 3],
         dims=[96, 192, 384, 768],
-        drop_path_rate=0.1
+        drop_path_rate=0.1,
+        kernel_size=kernel_size,
+        mlp_ratio=mlp_ratio,
+        norm_layer=norm_layer,
+        stem_type=stem_type,
     )
