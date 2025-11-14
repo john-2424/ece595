@@ -206,8 +206,8 @@ class ConvNeXt(nn.Module):
                     padding=3,
                     bias=False,
                 ),
-            stem_norm,
-            nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
+                stem_norm,
+                nn.MaxPool2d(kernel_size=3, stride=2, padding=1),
             )
         else:
             raise ValueError(f"Unsupported stem_type: {stem_type}")
@@ -246,8 +246,28 @@ class ConvNeXt(nn.Module):
         # keep LayerNorm in head for simplicity
         self.head_norm = nn.LayerNorm(dims[-1], eps=1e-6)
         self.head = nn.Linear(dims[-1], num_classes)
-
+        
         self.apply(self._init_weights)
+
+    def _init_weights(self, m):
+        if isinstance(m, (nn.Conv2d, nn.Linear)):
+            # trunc_normal_ is in torch.nn.init for recent PyTorch
+            nn.init.trunc_normal_(m.weight, std=.02)
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+
+    def forward_features(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.stem(x)
+        x = self.stages(x)
+        x = self.global_pool(x)  # (B, C, 1, 1)
+        x = x.flatten(1)         # (B, C)
+        x = self.head_norm(x)
+        return x
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.forward_features(x)
+        x = self.head(x)
+        return x
 
 
 def convnext_tiny(
