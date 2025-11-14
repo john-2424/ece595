@@ -1,0 +1,34 @@
+\section{Cross-Paper Discussion}
+\label{sec:discussion}
+
+% This section synthesizes your critiques and implementation findings.
+% It can be relatively concise but conceptually deep.
+
+\subsection{Insights from the Implementation}
+\label{sec:discussion_impl}
+% Reflect on what you learned by implementing one of the methods:
+% - Did the method behave as advertised in the paper?
+% - Were there hidden complexities not obvious from the text?
+% - Did any design decisions feel more or less important than claimed?
+
+\subsection{Comparing Methods Across Papers}
+\label{sec:discussion_compare}
+
+
+In the current stage of this project, the most concrete contrast is between ConvNeXt and BEV-SAN. 
+ConvNeXt revisits large-scale image classification, detection, and segmentation through the lens of backbone design, asking how far a carefully modernized convolutional network can go when trained with contemporary recipes. 
+BEV-SAN, by contrast, keeps the backbone largely fixed and instead interrogates the representation and fusion mechanisms used to build a BEV tensor from multi-camera images. 
+Taken together, these works emphasize that performance in modern vision systems is shaped both by the quality of generic feature extractors and by the geometry-aware structures that sit on top of them. 
+Backbone improvements alone cannot compensate for a lossy or poorly motivated projection from images into the task's native space, and conversely, sophisticated BEV encodings still depend on strong low-level features.
+
+A second theme that emerges is the role of explicit inductive biases. 
+ConvNeXt shows that reintroducing some of the simplicity and locality of classical CNNs, when combined with training strategies borrowed from Transformers, can recover much of the performance gap while maintaining high efficiency. 
+BEV-SAN, in turn, demonstrates that even in architectures built largely from generic components such as convolutions and self-attention, explicitly encoding knowledge about how objects occupy the 3D scene---in this case, through height slices informed by LiDAR statistics---can yield tangible benefits. 
+This suggests that future models may need to balance flexible, data-driven components with carefully chosen geometric and structural priors rather than relying solely on one or the other.
+
+
+
+\subsection{Limitations and Future Directions}
+\label{sec:discussion_future}
+% Discuss limitations of your study (compute constraints, dataset size, simplifications)
+% and outline promising directions for future work building on these papers.

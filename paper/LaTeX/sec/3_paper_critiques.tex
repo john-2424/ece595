@@ -1,0 +1,97 @@
+
+\section{Reviewed Papers and Critique}
+\label{sec:critiques}
+
+\subsection{A ConvNet for the 2020s (ConvNeXt), CVPR 2022}
+ConvNeXt~\cite{liu2022convnext} is a modern convolutional architecture that revisits ResNet design.
+
+{Paper 1: \emph{A ConvNet for the 2020s (ConvNeXt), CVPR 2022}}
+\label{sec:paper1}
+
+\subsubsection{Summary of Contributions}
+ConvNeXt revisits the classical convolutional backbone design by systematically modernizing ResNet-50 using principles 
+borrowed from hierarchical Vision Transformers. Through a series of carefully controlled design modifications—altering stage 
+compute ratios, replacing the ResNet stem with a patchify layer, employing depthwise convolutions, adopting inverted bottlenecks, 
+increasing kernel sizes to 7$\times$7, reducing activation and normalization layers, and replacing BatchNorm with LayerNorm—the 
+authors construct a purely convolutional architecture that matches or surpasses Swin Transformers on ImageNet classification, 
+COCO object detection, and ADE20K semantic segmentation. Crucially, these gains arise without introducing any attention modules.
+
+\subsubsection{Strengths}
+ConvNeXt’s primary strength lies in its rigorous design-space exploration. Rather than proposing a monolithic architecture, 
+the paper decomposes Transformer advantages into modular inductive or training-related factors. This yields scientific clarity: 
+each modification is justified through ablations that are performed in isolation, allowing causal reasoning about architectural choices. 
+ConvNeXt also offers impressive empirical results, outperforming Swin Transformer in similar FLOP and parameter regimes while maintaining 
+higher inference throughput. The architecture is practical, simple to implement, consistent with existing ConvNet frameworks, and scales 
+smoothly to large models such as ConvNeXt-XL.
+
+\subsubsection{Limitations and Weaknesses}
+Although empirically strong, ConvNeXt is not conceptually novel. Most of its components—depthwise convolution, inverted bottlenecks, 
+LayerNorm, GELU, and patchify stems—have been studied individually across prior CNN and Transformer literature. As a result, the paper 
+resembles an engineering consolidation rather than a new architectural paradigm. Another limitation is the heavy dependence on advanced 
+training techniques (Mixup, CutMix, RandAugment, AdamW, long training schedules). This raises the question of how much the performance 
+gains stem from architecture versus training recipes. The lack of theoretical analysis limits the paper’s ability to explain why certain 
+modifications interact so effectively.
+
+\subsubsection{Comparison to Other Reviewed Papers}
+Compared to the other papers in this study, ConvNeXt is the most architecture-focused and the most systematic in its methodological 
+approach. While other papers may introduce novel task formulations or complex modules, ConvNeXt emphasizes minimalism and modernization. 
+Whereas Transformer-heavy works rely on global self-attention or hybrid structures, ConvNeXt demonstrates that local convolutions with 
+proper scaling and normalization can achieve equivalent or superior performance. ConvNeXt’s design philosophy contrasts sharply with 
+architectures that prioritize global reasoning or cross-modal fusion, instead presenting a unified, convolution-centric alternative.
+
+\subsubsection{Takeaway}
+ConvNeXt underscores that convolutional backbones remain competitive and relevant despite the Transformer wave. Its systematic approach 
+provides a template for fair comparison between architectures and suggests that architectural progress arises as much from training and 
+design heuristics as from new computational primitives. This makes ConvNeXt a strong candidate for implementation within the scope of 
+this project.
+
+% Remaining papers (Paper 2--4) follow the same structure.
+
+
+
+\subsection{Planning-Oriented Autonomous Driving (UniAD), CVPR 2023}
+UniAD~\cite{li2023uniad} proposes a unified, planning-oriented framework for autonomous driving.
+
+{Paper 3: \emph{Planning-Oriented Autonomous Driving (UniAD), CVPR 2023}}
+\label{sec:paper3}
+
+\subsubsection{Summary of Contributions}
+UniAD proposes a unified, planning-oriented framework for autonomous driving that integrates five major tasks—tracking, mapping, motion forecasting, occupancy prediction, and planning—into a single coordinated transformer-based architecture. Unlike modular or multi-task learning pipelines, UniAD explicitly optimizes upstream perception and prediction modules to support the downstream planning objective. Through a query-based design, each task shares structured representations that preserve agent identity over time, enabling robust multi-agent reasoning in bird’s-eye-view (BEV) space. Evaluated on the nuScenes benchmark, UniAD achieves state-of-the-art performance across perception, forecasting, and planning metrics, demonstrating that planning-oriented system design yields safer and more stable autonomous driving behavior.
+
+\subsubsection{Strengths}
+UniAD’s primary strength is its holistic design philosophy: all upstream tasks are architected to directly benefit the planner. This is substantiated by extensive ablations showing that planning accuracy and collision avoidance improve significantly when both motion and occupancy prediction modules are included, and further improved when tracking and mapping are jointly optimized. The use of persistent task queries is innovative, enabling consistent agent representations across modules without hand-engineered association heuristics. MotionFormer’s scene-centric multi-agent forecasting and OccFormer’s agent-aware occupancy prediction contribute to superior future-scene understanding. UniAD’s planner further incorporates an optimization stage that adjusts the ego trajectory in response to predicted occupancies, yielding best-in-class collision avoidance—even outperforming some LiDAR-based approaches.
+
+\subsubsection{Weaknesses / Limitations}
+The system’s comprehensiveness also introduces significant drawbacks. UniAD is computationally heavy, with five interacting transformer decoders and a BEV encoder, making training and deployment expensive. Perception performance, while competitive, lags behind highly specialized task-specific methods, as model capacity is shared across tasks. The reliance on precise multi-camera calibration and BEV projection restricts applicability in less controlled environments. Long-tail scenarios, such as large trucks or rare object configurations, remain challenging. The inference-time planning optimization is non-differentiable, partially breaking the end-to-end paradigm.
+
+\subsubsection{Comparison to Other Reviewed Papers}
+Compared to ConvNeXt, UniAD is far more task-diverse and system-level in scope. While ConvNeXt focuses on backbone modernization and other methods improve BEV feature lifting, UniAD addresses the full perception-to-planning chain. Its use of structured queries differs fundamentally from the convolution-heavy ConvNeXt and height-sliced BEV-based designs. UniAD’s key distinction is its planning-oriented objective, which neither of the other two papers address. It introduces intermediate tasks (motion and occupancy prediction) absent in the other works, and demonstrates how such tasks directly influence downstream planning quality.
+
+\subsubsection{Takeaway}
+UniAD illustrates that truly robust autonomous driving requires coordination among perception, prediction, and planning—not merely strong perception alone. Its planning-focused architecture provides a blueprint for next-generation systems that reason about multi-agent interactions, scene occupancy, and ego safety in a unified manner.
+
+
+\subsection{Reasoning in Visual Navigation of End-to-End Trained Agents: A Dynamical Systems Approach, CVPR 2025}
+The CVPR 2025 navigation paper~\cite{nav2025dynamics} studies reasoning in end-to-end trained visual navigation agents.
+
+{Paper 4: \emph{Reasoning in Visual Navigation of End-to-End Trained Agents: A Dynamical Systems Approach, CVPR 2025}}
+\label{sec:paper4}
+
+\subsubsection{Summary of Contributions}
+This paper investigates the internal reasoning processes that emerge when end-to-end visual navigation agents are trained with realistic robot dynamics. Unlike prior work that evaluates agents solely in simulation, the authors conduct a comprehensive real-world study spanning 262 navigation episodes executed by a physical robot. The study reveals that recurrent policies trained with PPO and realistic motion models develop latent dynamical structures that resemble prediction--correction mechanisms analogous to a Kalman filter. The agent's hidden state is shown to encode short- to medium-horizon motion predictions, local scene structure, and exploration history. Using probing models, sensitivity analyses, and comparisons with a classical planner, the paper presents evidence that trained agents combine open-loop forecasting with sensory-based corrections and exhibit limited forms of planning. The authors conclude that training on realistic sequential visual data leads to the emergence of usable motion models and structured episodic memory, enabling precise navigation in real environments.
+
+\subsubsection{Strengths}
+A notable strength of the paper is its rigorous empirical methodology, which blends realistic simulation, real-world deployment, probing networks, and dynamical perturbations. Few navigation works attempt such a detailed behavioral audit of learned policies, and even fewer ground their findings in real-robot evaluations. The sensitivity analysis framework is particularly valuable, demonstrating how odometry, damping, and response-time parameters influence the stability of the learned policy. The probing experiments offer compelling evidence that recurrent policies encode internal representations of motion dynamics and local occupancy without explicit supervision. Additionally, the study bridges ideas from robotics, reinforcement learning, and control theory, illustrating how end-to-end policies implicitly adopt forms of prediction and correction previously associated with model-based estimators.
+
+\subsubsection{Limitations and Weaknesses}
+Despite its breadth, the analysis leaves several interpretability and generalization questions unresolved. Many of the conclusions rely on post-hoc probing models rather than interventions on the policy itself, which complicates causal attribution: the fact that a linear model can extract future pose information from the hidden state does not necessarily imply the agent uses that information to select actions. The comparison to Kalman filtering is suggestive but remains qualitative; the study does not estimate uncertainty or quantify the respective roles of prediction and correction under different noise regimes. Long-horizon planning remains weak, and the agent frequently demonstrates ``tunnel vision'' when the optimal geodesic path requires global spatial reasoning. The policy also depends heavily on AMCL localization, and replacing it with visual localization significantly reduces performance, raising questions about how much of the navigation stack is actually learned. Finally, the approach demands extensive real-world instrumentation and calibration, which may limit reproducibility for broader research communities.
+
+\subsubsection{Comparison to Other Reviewed Papers}
+Compared to ConvNeXt and UniAD, this paper represents a distinct exploration of emergent reasoning rather than architectural novelty. While ConvNeXt and other BEV-focused models focus on improving visual representations and UniAD integrates multiple autonomy tasks into a unified framework, this paper instead asks: \emph{What does an end-to-end policy actually learn?} Its contribution is diagnostic rather than generative. Unlike the perception-centric work of ConvNeXt and BEV-based methods, this paper integrates perception with robot dynamics and sequential decision making. Relative to UniAD, which targets long-horizon planning and interaction-heavy scenarios, the CVPR 2025 paper investigates a simpler navigation task but with deeper introspection into the policy's latent structures. Collectively, the four papers highlight a spectrum -- ranging from representation learning to system-level autonomy to introspective analysis -- showing that progress in embodied AI requires both architectural innovation and a deeper understanding of how policies reason.
+
+\subsubsection{Takeaway}
+This paper demonstrates that realistic motion modeling and recurrent architectures enable end-to-end navigation agents to develop internal dynamical representations, partial plans, and latent maps. While these capabilities do not yet constitute robust long-term planning, they reveal how model-free training can yield model-like behaviors when grounded in realistic interaction data. The study highlights the importance of understanding the internal structure of learned policies, especially for embodied AI systems whose safety and robustness depend on more than just surface-level performance metrics.
+
+
+
+

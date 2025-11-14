@@ -1,0 +1,13 @@
+
+\section{Background and Problem Context}
+\label{sec:background}
+
+The three papers reviewed in this work reflect distinct problem domains within computer vision, each shaped by unique modeling challenges and technical motivations. Although the papers are not directly related, they collectively demonstrate the breadth of tasks addressed in contemporary research and the methodological diversity used to solve them.
+
+ConvNeXt (CVPR 2022) revisits convolutional neural networks (CNNs) during an era dominated by Vision Transformers. By systematically re‑designing the ResNet family using design principles extracted from transformers—such as large kernel sizes, inverted bottlenecks, and simplified stage rules—it highlights that CNNs remain competitive when modernized. This line of work contributes to foundational backbone architectures that support classification, detection, and segmentation tasks.
+
+UniAD (CVPR 2023) addresses a completely different challenge: building an end‑to‑end autonomous driving system that integrates perception, motion forecasting, and planning. Prior pipelines typically rely on modular subsystems, each optimized independently. UniAD proposes a unified architecture where shared features support all tasks, enabling joint reasoning and improved temporal consistency. This line of work sits at the intersection of BEV perception, multi‑task learning, and sequential decision‑making.
+
+The CVPR 2025 paper on reasoning‑based visual navigation explores the problem of learning policies for embodied agents that navigate visually using endogenous reasoning. Rather than relying solely on deep networks as opaque function approximators, the paper leverages a dynamical‑systems interpretation of neural activations, allowing the learned policy to demonstrate structured, interpretable, and controllable behavior. This connects modern deep learning with classical control‑theoretic ideas.
+
+These domains underscore how CV research now spans low‑level representation learning, multi‑modal embodied decision‑making, and hybrid neuro‑dynamical models. Together they provide a varied landscape for critique and future implementation work.

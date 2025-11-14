@@ -209,3 +209,6 @@ __marimo__/
 .vs
 hw2/data/
 h2-data.zip
+
+paper/data/
+paper/checkpoints/
