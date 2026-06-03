@@ -35,6 +35,18 @@ paper/
   LaTeX/                  # CVPR-style paper source
 ```
 
+Architecture and experiment flow:
+
+```mermaid
+flowchart LR
+    A["CIFAR-10 images"] --> B["Augmentation + normalization"]
+    B --> C["Stem ablation: patchify or ResNet-style"]
+    C --> D["ConvNeXt stages: depths 3, 3, 9, 3"]
+    D --> E["Global average pool + LayerNorm"]
+    E --> F["10-class classifier"]
+    F --> G["CSV logs, checkpoints, plots"]
+```
+
 ### Final Project Results
 
 The final report and presentation show that ConvNeXt's ImageNet-scale design choices do not transfer uniformly to low-resolution CIFAR-10. ResNet-18 remains the strongest baseline, while ConvNeXt benefits most from a more traditional ResNet-style input stem.
@@ -89,6 +101,17 @@ Training writes CSV logs to `paper/results/` and checkpoints to `paper/checkpoin
 
 `hw1/` implements a small reverse-mode automatic differentiation system and uses it to train simple MLPs on toy Boolean tasks.
 
+Workflow:
+
+```mermaid
+flowchart LR
+    A["Toy datasets: XOR and two-bit adder"] --> B["Train/test splits"]
+    B --> C["Packed MLP parameters"]
+    C --> D["Reverse-mode autodiff tape"]
+    D --> E["Gradient descent"]
+    E --> F["Loss and accuracy demos"]
+```
+
 Key pieces:
 
 - `reverse_mode.py` implements the cobundle/tape-based reverse-mode autodiff primitives.
@@ -109,6 +132,18 @@ bash run
 
 `hw2/` contains a compact CNN image classifier for a four-class image dataset: Egyptian cat, banana, African elephant, and mountain bike. The model is intentionally lightweight and VGG-like, with BatchNorm, ReLU activations, max-pooling, a small residual connection in the first block, and an adaptive-pooling classifier head.
 
+Model flow:
+
+```mermaid
+flowchart LR
+    A["Input image: 3 x 128 x 128"] --> B["Stem: Conv + BatchNorm + ReLU"]
+    B --> C["ConvBlock 1: residual + max-pool"]
+    C --> D["ConvBlock 2: max-pool"]
+    D --> E["ConvBlock 3: max-pool"]
+    E --> F["Adaptive average pool + dropout"]
+    F --> G["4-class linear head"]
+```
+
 Key pieces:
 
 - `models/small_net.py` defines the `SmallNet` architecture.
@@ -123,6 +158,12 @@ Recorded evaluation artifacts report:
 - Top-1 accuracy: `70.08%`
 - Top-2 accuracy: `84.58%`
 - Test samples: `1200`
+
+Demo outputs already included in the repository:
+
+![HW2 inference examples](hw2/artifacts/inference_grid.png)
+
+![HW2 confusion matrix](hw2/artifacts/confusion_matrix.png)
 
 Run:
 
